@@ -12,5 +12,8 @@ dependencies = [
     "click>=8.1",
 ]
 
+[project.scripts]
+platform-cli = "platform_cli.cli:cli"
+
 [tool.setuptools.packages.find]
 include = ["platform_cli*"]
