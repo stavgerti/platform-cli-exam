@@ -139,3 +139,20 @@ aws route53 delete-hosted-zone --id <id> --profile platform-cli-exam
 
 You can always find what the tool created for you with `ec2 list`,
 `s3 list`, and `route53 list-zones`.
+
+## Web UI (optional)
+
+A Streamlit UI (`app.py`) covers the same actions as the CLI through forms
+instead of commands. It calls the exact same `platform_cli.ec2` / `.s3` /
+`.route53` functions as `cli.py` — no logic is duplicated between the two.
+
+```bash
+pip install -r requirements-ui.txt
+streamlit run app.py
+```
+
+This opens the UI at `http://localhost:8501`. Enter your AWS profile and
+region in the sidebar, then use the EC2 / S3 / Route53 tabs. Public S3
+buckets require checking an explicit confirmation checkbox before the
+"Create bucket" button will do anything — the UI equivalent of the CLI's
+`Are you sure? (yes/no)` prompt.
