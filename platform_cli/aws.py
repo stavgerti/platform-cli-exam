@@ -1,7 +1,7 @@
 """Shared AWS session handling for all resource modules."""
 
 import boto3
-from botocore.exceptions import ClientError, ProfileNotFound
+from botocore.exceptions import ClientError, NoCredentialsError, ProfileNotFound
 
 
 class PlatformCliError(Exception):
@@ -21,6 +21,11 @@ def get_caller_username(session: boto3.Session) -> str:
     """Default Owner tag value: the IAM identity behind the session, not the local OS user."""
     try:
         identity = session.client("sts").get_caller_identity()
+    except NoCredentialsError as exc:
+        raise PlatformCliError(
+            "No AWS credentials found. Pass a valid --profile, or run 'aws configure' "
+            "to set up the default profile."
+        ) from exc
     except ClientError as exc:
         raise PlatformCliError(f"Could not determine AWS identity: {exc}") from exc
     return identity["Arn"].rsplit("/", maxsplit=1)[-1]
