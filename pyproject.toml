@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "platform-cli"
+version = "0.1.0"
+description = "Self-service CLI for provisioning AWS EC2, S3, and Route53 resources within guardrails"
+requires-python = ">=3.10"
+dependencies = [
+    "boto3>=1.34",
+    "click>=8.1",
+]
+
+[tool.setuptools.packages.find]
+include = ["platform_cli*"]
