@@ -153,6 +153,40 @@ $ platform-cli route53 delete-record --zone-id Z01005591NOWIFWOS92BA \
 Deleted record www.demo.stav-platform-cli-exam.test. (A)
 ```
 
+## Web UI (Streamlit)
+
+Same guardrails, same underlying `ec2`/`s3`/`route53` functions as the CLI,
+driven through `app.py` (`streamlit run app.py`). Screenshots below are from
+a real run against the same AWS account.
+
+**Clean error, not a traceback, when no AWS profile is set:**
+
+![No credentials](screenshots/01-connection-error.png)
+
+**Connected, EC2 tab:**
+
+![EC2 connected](screenshots/02-ec2-connected.png)
+
+**EC2 instance list (owner-scoped, same data as `ec2 list`):**
+
+![EC2 list](screenshots/03-ec2-list.png)
+
+**Public bucket without the confirmation checkbox checked - blocked, same
+guardrail as the CLI's `Are you sure?` prompt:**
+
+![S3 confirmation guardrail](screenshots/05-s3-confirmation-guardrail.png)
+
+**Same form, confirmation checked - bucket created:**
+
+![S3 create public](screenshots/04-s3-create-public.png)
+
+(The `bucket71717171` public bucket shown above was deleted immediately
+after this screenshot, same cleanup practice as the rest of this project.)
+
+**Route53 zones tab:**
+
+![Route53 zones](screenshots/06-route53-zones.png)
+
 ## Bugs found and fixed during this development (kept here as evidence of real, non-mocked testing)
 
 Both were only caught because the code was run against real AWS instead of
