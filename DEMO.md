@@ -7,7 +7,7 @@ pasted verbatim, unedited except for removing timestamps of no interest.
 Environment: `--profile platform-cli-exam --region us-east-1`, resolved
 owner: `stav` (from AWS identity, not a flag).
 
-## EC2 — create / list / start / stop
+## EC2 - create / list / start / stop
 
 ```
 $ platform-cli ec2 create --instance-type t3.micro --os-family ubuntu --name demo-instance
@@ -75,7 +75,7 @@ created 2nd: {'InstanceId': 'i-06928f3505ddad9f1', ...}
 Correctly blocked: Cannot create instance: 2 CLI-created instances are already running (limit is 2).
 ```
 
-## S3 — create (private + public) / upload / list
+## S3 - create (private + public) / upload / list
 
 ```
 $ platform-cli s3 create --bucket-name platform-cli-exam-stav-992382545251-demo
@@ -121,7 +121,7 @@ $ echo no | platform-cli s3 create --bucket-name some-other-bucket --public
 Bucket 'some-other-bucket' will be PUBLIC. Are you sure? [y/N]: Aborted.
 ```
 
-## Route53 — zone + record create / update / delete / list
+## Route53 - zone + record create / update / delete / list
 
 ```
 $ platform-cli route53 create-zone --zone-name demo.stav-platform-cli-exam.test.
