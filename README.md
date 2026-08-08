@@ -83,17 +83,17 @@ platform-cli s3 list
 ```bash
 platform-cli route53 create-zone --zone-name example.test.
 
-platform-cli route53 create-record --zone-id Z0108436IXZEJBB3AIL9 \
+platform-cli route53 create-record --zone-id Z0123456789EXAMPLE \
     --name www.example.test. --type A --value 1.2.3.4
 
-platform-cli route53 update-record --zone-id Z0108436IXZEJBB3AIL9 \
+platform-cli route53 update-record --zone-id Z0123456789EXAMPLE \
     --name www.example.test. --type A --value 5.6.7.8
 
-platform-cli route53 delete-record --zone-id Z0108436IXZEJBB3AIL9 \
+platform-cli route53 delete-record --zone-id Z0123456789EXAMPLE \
     --name www.example.test. --type A
 
 platform-cli route53 list-zones
-platform-cli route53 list-records --zone-id Z0108436IXZEJBB3AIL9
+platform-cli route53 list-records --zone-id Z0123456789EXAMPLE
 ```
 
 Run `platform-cli --help`, or `platform-cli <resource> --help`, or
