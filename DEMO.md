@@ -43,28 +43,22 @@ created by this same tool during development — left in place on purpose, see
 [README - Cleanup](README.md#cleanup). `demo-instance` was stopped again
 right after this capture to avoid leaving it running.)
 
-### EBS root volume is encrypted
-
-Checked directly against AWS, not just "the code says so":
-
-```
-$ aws ec2 describe-volumes --profile platform-cli-exam --region us-east-1 \
-    --filters Name=attachment.instance-id,Values=i-0cc115778c33d0075 \
-    --query 'Volumes[].[VolumeId,Encrypted,VolumeType]'
-vol-02194f63454388fe7  Encrypted: True  VolumeType: gp3
-```
-
-### Terminate - confirmation required, then permanent
+### Terminate - confirmation required, then permanent (also verifies EBS encryption)
 
 ```
 $ platform-cli ec2 create --name demo-terminate-target
-Created instance i-0cc115778c33d0075 (state=pending, type=t3.micro)
+Created instance i-09b0ebcc52ea65238 (state=pending, type=t3.micro)
 
-$ platform-cli ec2 terminate --instance-id i-0cc115778c33d0075
-Instance 'i-0cc115778c33d0075' will be PERMANENTLY TERMINATED. Are you sure? [y/N]: Aborted.
+$ aws ec2 describe-volumes --profile platform-cli-exam --region us-east-1 \
+    --filters Name=attachment.instance-id,Values=i-09b0ebcc52ea65238 \
+    --query 'Volumes[].[VolumeId,Encrypted,VolumeType]' --output text
+vol-06d84c386f9eb30aa	True	gp3
 
-$ echo yes | platform-cli ec2 terminate --instance-id i-0cc115778c33d0075
-Instance 'i-0cc115778c33d0075' will be PERMANENTLY TERMINATED. Are you sure? [y/N]: Terminated instance i-0cc115778c33d0075
+$ platform-cli ec2 terminate --instance-id i-09b0ebcc52ea65238
+Instance 'i-09b0ebcc52ea65238' will be PERMANENTLY TERMINATED. Are you sure? [y/N]: Aborted.
+
+$ echo yes | platform-cli ec2 terminate --instance-id i-09b0ebcc52ea65238
+Instance 'i-09b0ebcc52ea65238' will be PERMANENTLY TERMINATED. Are you sure? [y/N]: Terminated instance i-09b0ebcc52ea65238
 ```
 
 ### Guardrail: instance type validated before touching AWS
