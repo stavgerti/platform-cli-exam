@@ -43,6 +43,30 @@ created by this same tool during development — left in place on purpose, see
 [README - Cleanup](README.md#cleanup). `demo-instance` was stopped again
 right after this capture to avoid leaving it running.)
 
+### EBS root volume is encrypted
+
+Checked directly against AWS, not just "the code says so":
+
+```
+$ aws ec2 describe-volumes --profile platform-cli-exam --region us-east-1 \
+    --filters Name=attachment.instance-id,Values=i-0cc115778c33d0075 \
+    --query 'Volumes[].[VolumeId,Encrypted,VolumeType]'
+vol-02194f63454388fe7  Encrypted: True  VolumeType: gp3
+```
+
+### Terminate - confirmation required, then permanent
+
+```
+$ platform-cli ec2 create --name demo-terminate-target
+Created instance i-0cc115778c33d0075 (state=pending, type=t3.micro)
+
+$ platform-cli ec2 terminate --instance-id i-0cc115778c33d0075
+Instance 'i-0cc115778c33d0075' will be PERMANENTLY TERMINATED. Are you sure? [y/N]: Aborted.
+
+$ echo yes | platform-cli ec2 terminate --instance-id i-0cc115778c33d0075
+Instance 'i-0cc115778c33d0075' will be PERMANENTLY TERMINATED. Are you sure? [y/N]: Terminated instance i-0cc115778c33d0075
+```
+
 ### Guardrail: instance type validated before touching AWS
 
 ```
@@ -119,6 +143,19 @@ Declining the confirmation aborts cleanly, no bucket is created:
 ```
 $ echo no | platform-cli s3 create --bucket-name some-other-bucket --public
 Bucket 'some-other-bucket' will be PUBLIC. Are you sure? [y/N]: Aborted.
+```
+
+### Delete - confirmation required, then permanent
+
+```
+$ platform-cli s3 create --bucket-name platform-cli-exam-stav-992382545251-demo-delete
+Created bucket platform-cli-exam-stav-992382545251-demo-delete (public=False, region=us-east-1)
+
+$ platform-cli s3 delete --bucket-name platform-cli-exam-stav-992382545251-demo-delete
+Bucket 'platform-cli-exam-stav-992382545251-demo-delete' will be PERMANENTLY DELETED. Are you sure? [y/N]: Aborted.
+
+$ echo yes | platform-cli s3 delete --bucket-name platform-cli-exam-stav-992382545251-demo-delete
+Bucket 'platform-cli-exam-stav-992382545251-demo-delete' will be PERMANENTLY DELETED. Are you sure? [y/N]: Deleted bucket platform-cli-exam-stav-992382545251-demo-delete
 ```
 
 ## Route53 - zone + record create / update / delete / list
