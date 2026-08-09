@@ -1,5 +1,7 @@
 """S3 bucket provisioning, scoped to buckets this CLI created."""
 
+import json
+
 from botocore.exceptions import ClientError
 
 from .aws import PlatformCliError
@@ -67,19 +69,19 @@ def create_bucket(
                 "RestrictPublicBuckets": False,
             },
         )
-        s3.put_bucket_policy(
-            Bucket=bucket_name,
-            Policy=f'''{{
-                "Version": "2012-10-17",
-                "Statement": [{{
+        policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
                     "Sid": "PublicReadGetObject",
                     "Effect": "Allow",
                     "Principal": "*",
                     "Action": "s3:GetObject",
-                    "Resource": "arn:aws:s3:::{bucket_name}/*"
-                }}]
-            }}''',
-        )
+                    "Resource": f"arn:aws:s3:::{bucket_name}/*",
+                }
+            ],
+        }
+        s3.put_bucket_policy(Bucket=bucket_name, Policy=json.dumps(policy))
     else:
         s3.put_public_access_block(
             Bucket=bucket_name,
