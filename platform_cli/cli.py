@@ -105,6 +105,21 @@ def ec2_stop(ctx, instance_id):
     click.secho(f"Stopped instance {instance_id}", fg="green")
 
 
+@ec2_group.command("terminate")
+@click.option("--instance-id", required=True)
+@click.pass_context
+@handle_errors
+def ec2_terminate(ctx, instance_id):
+    """Permanently terminate a CLI-created EC2 instance."""
+    session, owner, _, _ = _context(ctx)
+    confirmed = click.confirm(f"Instance '{instance_id}' will be PERMANENTLY TERMINATED. Are you sure?", default=False)
+    if not confirmed:
+        click.echo("Aborted.")
+        return
+    ec2.terminate_instance(session, instance_id, owner, confirmed=confirmed)
+    click.secho(f"Terminated instance {instance_id}", fg="green")
+
+
 @ec2_group.command("list")
 @click.pass_context
 @handle_errors
@@ -167,6 +182,21 @@ def s3_upload(ctx, bucket_name, file_path, key):
     session, owner, _, _ = _context(ctx)
     result = s3.upload_file(session, bucket_name, file_path, owner=owner, key=key)
     click.secho(f"Uploaded to s3://{result['BucketName']}/{result['Key']}", fg="green")
+
+
+@s3_group.command("delete")
+@click.option("--bucket-name", required=True)
+@click.pass_context
+@handle_errors
+def s3_delete(ctx, bucket_name):
+    """Permanently delete a CLI-created S3 bucket (must be empty)."""
+    session, owner, _, _ = _context(ctx)
+    confirmed = click.confirm(f"Bucket '{bucket_name}' will be PERMANENTLY DELETED. Are you sure?", default=False)
+    if not confirmed:
+        click.echo("Aborted.")
+        return
+    s3.delete_bucket(session, bucket_name, owner, confirmed=confirmed)
+    click.secho(f"Deleted bucket {bucket_name}", fg="green")
 
 
 @s3_group.command("list")

@@ -136,6 +136,15 @@ def stop_instance(session, instance_id: str, owner: str) -> dict:
     return {"InstanceId": instance_id, "Action": "stop"}
 
 
+def terminate_instance(session, instance_id: str, owner: str, confirmed: bool = False) -> dict:
+    ec2 = session.client("ec2")
+    _get_managed_instance(ec2, instance_id, owner)
+    if not confirmed:
+        raise PlatformCliError(f"Terminating instance '{instance_id}' requires explicit confirmation.")
+    ec2.terminate_instances(InstanceIds=[instance_id])
+    return {"InstanceId": instance_id, "Action": "terminate"}
+
+
 def list_instances(session, owner: str) -> list[dict]:
     ec2 = session.client("ec2")
     response = ec2.describe_instances(Filters=_owner_scope_filters(owner))

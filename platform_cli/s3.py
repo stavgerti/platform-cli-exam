@@ -112,6 +112,20 @@ def upload_file(session, bucket_name: str, file_path: str, owner: str, key: str 
     return {"BucketName": bucket_name, "Key": object_key}
 
 
+def delete_bucket(session, bucket_name: str, owner: str, confirmed: bool = False) -> dict:
+    s3 = session.client("s3")
+    _require_managed_bucket(s3, bucket_name, owner)
+    if not confirmed:
+        raise PlatformCliError(f"Deleting bucket '{bucket_name}' requires explicit confirmation.")
+
+    try:
+        s3.delete_bucket(Bucket=bucket_name)
+    except ClientError as exc:
+        raise PlatformCliError(f"Could not delete bucket '{bucket_name}': {exc}") from exc
+
+    return {"BucketName": bucket_name, "Action": "delete"}
+
+
 def list_buckets(session, owner: str) -> list[dict]:
     s3 = session.client("s3")
     all_buckets = s3.list_buckets()["Buckets"]

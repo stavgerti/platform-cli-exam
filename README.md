@@ -61,6 +61,10 @@ platform-cli ec2 list
 # Start / stop (only works on instances this tool created for you)
 platform-cli ec2 start --instance-id i-0123456789abcdef0
 platform-cli ec2 stop  --instance-id i-0123456789abcdef0
+
+# Terminate: permanent, requires explicit confirmation
+platform-cli ec2 terminate --instance-id i-0123456789abcdef0
+# -> Instance 'i-0123456789abcdef0' will be PERMANENTLY TERMINATED. Are you sure? [y/N]:
 ```
 
 ### S3
@@ -76,6 +80,9 @@ platform-cli s3 create --bucket-name my-public-bucket --public
 platform-cli s3 upload --bucket-name my-globally-unique-bucket-name --file ./report.csv
 
 platform-cli s3 list
+
+# Delete: permanent, requires explicit confirmation, bucket must be empty
+platform-cli s3 delete --bucket-name my-globally-unique-bucket-name
 ```
 
 ### Route53
@@ -110,29 +117,28 @@ Every resource this tool creates gets four tags:
 | `Project`    | Defaults to `platform-cli`, override with `--project` |
 | `Environment`| Defaults to `dev`, override with `--environment`      |
 
-`list`, `start`, `stop`, and `upload` all filter by **both** `CreatedBy` and
-`Owner` — not just `CreatedBy`. This matters on a shared account: without the
-`Owner` check, one user's 2-instance cap could be exhausted by someone
-else's instances, and `list` would show everyone's resources instead of
-just yours.
+`list`, `start`, `stop`, `terminate`, `upload`, and `delete` all filter by
+**both** `CreatedBy` and `Owner` — not just `CreatedBy`. This matters on a
+shared account: without the `Owner` check, one user's 2-instance cap could
+be exhausted by someone else's instances, and `list` would show everyone's
+resources instead of just yours.
 
 ## Cleanup
 
-The CLI intentionally does not expose delete/terminate for EC2 or S3 (only
-Route53 records, per spec) — this is a safety choice, not an oversight,
-since irreversible deletes deserve deliberate action. To clean up test
-resources:
+`ec2 terminate` and `s3 delete` both require typing `y` at an explicit
+confirmation prompt — irreversible deletes deserve deliberate action, not a
+single accidental flag.
 
 ```bash
-# EC2 - stop first, then terminate via the AWS CLI directly
-aws ec2 terminate-instances --instance-ids i-0123456789abcdef0 --profile platform-cli-exam
+platform-cli ec2 terminate --instance-id i-0123456789abcdef0
 
-# S3 - empty then delete the bucket
+# S3 buckets must be empty before deleting
 aws s3 rm s3://my-bucket --recursive --profile platform-cli-exam
-aws s3 rb s3://my-bucket --profile platform-cli-exam
+platform-cli s3 delete --bucket-name my-bucket
 
-# Route53 - delete records first (a zone can't be deleted while it holds
-# non-default records), then the zone
+# Route53 has no zone-delete command (only record create/update/delete, per
+# spec) - delete records first (a zone can't be deleted while it holds
+# non-default records), then remove the zone via the AWS CLI directly
 platform-cli route53 delete-record --zone-id <id> --name <name> --type <type>
 aws route53 delete-hosted-zone --id <id> --profile platform-cli-exam
 ```
