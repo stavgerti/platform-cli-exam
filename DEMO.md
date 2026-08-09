@@ -189,8 +189,8 @@ after this screenshot, same cleanup practice as the rest of this project.)
 
 ## Bugs found and fixed during this development (kept here as evidence of real, non-mocked testing)
 
-Both were only caught because the code was run against real AWS instead of
-assumed correct:
+All three were only caught because the code was run against real AWS instead
+of assumed correct:
 
 1. **EC2 cap race condition** - the running-instance count only checked
    `instance-state-name=running`, but a just-launched instance sits in
