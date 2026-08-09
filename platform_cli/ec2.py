@@ -9,7 +9,10 @@ ALLOWED_INSTANCE_TYPES = {"t3.micro", "t2.small"}
 RUNNING_INSTANCE_CAP = 2
 
 AMI_SSM_PARAMS = {
-    "ubuntu": "/aws/service/canonical/ubuntu/server/22.04/stable/current/amd64/hvm/ebs-gp2/ami-id",
+    # Pinned to the current Ubuntu LTS (24.04 "noble") and the current Amazon
+    # Linux release - "latest" within that release, not a dynamic search
+    # across all Ubuntu/AL versions. Bump these paths when a new LTS ships.
+    "ubuntu": "/aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id",
     "amazon-linux": "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64",
 }
 

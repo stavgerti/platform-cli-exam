@@ -67,6 +67,12 @@ platform-cli ec2 terminate --instance-id i-0123456789abcdef0
 # -> Instance 'i-0123456789abcdef0' will be PERMANENTLY TERMINATED. Are you sure? [y/N]:
 ```
 
+`--os-family` chooses `ubuntu` (24.04 LTS) or `amazon-linux` (AL2023); within
+that family, the AMI is always the current one, fetched from SSM Parameter
+Store at creation time rather than hardcoded. The Ubuntu path is pinned to
+24.04 specifically, not "whatever the newest LTS is" - bump it in
+`platform_cli/ec2.py` when a new LTS ships.
+
 ### S3
 
 ```bash
