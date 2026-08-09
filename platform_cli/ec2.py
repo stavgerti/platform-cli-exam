@@ -85,12 +85,22 @@ def create_instance(
     ami_id = get_latest_ami(session, os_family)
     tags = build_tags(owner=owner, project=project, environment=environment, extra={"Name": name} if name else None)
 
+    # Root device name differs by AMI family (Ubuntu: /dev/sda1, Amazon Linux
+    # 2023: /dev/xvda) - ask the AMI itself instead of hardcoding one.
+    root_device_name = ec2.describe_images(ImageIds=[ami_id])["Images"][0]["RootDeviceName"]
+
     response = ec2.run_instances(
         ImageId=ami_id,
         InstanceType=instance_type,
         MinCount=1,
         MaxCount=1,
         TagSpecifications=[{"ResourceType": "instance", "Tags": to_boto_tags(tags)}],
+        BlockDeviceMappings=[
+            {
+                "DeviceName": root_device_name,
+                "Ebs": {"Encrypted": True, "VolumeType": "gp3"},
+            }
+        ],
     )
     instance = response["Instances"][0]
     return {
