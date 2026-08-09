@@ -76,8 +76,8 @@ with ec2_tab:
     if instances:
         st.dataframe(instances, use_container_width=True)
 
-        instance_id = st.selectbox("Instance to start/stop", [i["InstanceId"] for i in instances])
-        col1, col2 = st.columns(2)
+        instance_id = st.selectbox("Instance to start/stop/terminate", [i["InstanceId"] for i in instances])
+        col1, col2, col3 = st.columns(3)
         if col1.button("Start"):
             try:
                 ec2.start_instance(session, instance_id, owner)
@@ -88,6 +88,14 @@ with ec2_tab:
             try:
                 ec2.stop_instance(session, instance_id, owner)
                 st.success(f"Stopped {instance_id}")
+            except PlatformCliError as exc:
+                st.error(str(exc))
+
+        terminate_confirmed = st.checkbox(f"Confirm - permanently terminate {instance_id}")
+        if col3.button("Terminate", disabled=not terminate_confirmed):
+            try:
+                ec2.terminate_instance(session, instance_id, owner, confirmed=terminate_confirmed)
+                st.success(f"Terminated {instance_id}")
             except PlatformCliError as exc:
                 st.error(str(exc))
     else:
@@ -140,6 +148,16 @@ with s3_tab:
                 st.error(str(exc))
             finally:
                 Path(tmp_path).unlink(missing_ok=True)
+
+        st.subheader("Delete a bucket")
+        delete_choice = st.selectbox("Bucket to delete", [b["BucketName"] for b in buckets], key="delete_bucket")
+        delete_confirmed = st.checkbox(f"Confirm - permanently delete {delete_choice} (must be empty)")
+        if st.button("Delete bucket", disabled=not delete_confirmed):
+            try:
+                s3.delete_bucket(session, delete_choice, owner, confirmed=delete_confirmed)
+                st.success(f"Deleted bucket {delete_choice}")
+            except PlatformCliError as exc:
+                st.error(str(exc))
     else:
         st.info("No buckets loaded yet - click 'Refresh bucket list'.")
 
